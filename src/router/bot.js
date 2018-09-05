@@ -13,12 +13,12 @@ const bot = new BootBot({
 bot.setGreetingText("Hello, I'm here to notify you about latest jobs posted on startup goa");
 
 bot.setGetStartedButton((payload, chat) => {
-    chat.say('Hello its Startup Goa job bot!!!');
+    chat.say('Hello its Goa Startup Jobs bot!!!');
     User.findOne({ user_id: payload.sender.id })
         .exec((err, result) => {
             if (err) {
                 log.error(err.message)
-            } else if (result.user_id != payload.sender.id) {
+            } else if (result===null) {
                 let new_record = new User({
                     user_id: payload.sender.id
                 });
@@ -31,8 +31,7 @@ bot.setGetStartedButton((payload, chat) => {
         })
 });
 
-bot.hear('latest jobs', (payload, chat) => {
-    chat.say('Please wait till we fetch some latest jobs!!');
+bot.hear(['latest jobs','new jobs','jobs'], (payload, chat) => {
     Job.find({})
         .sort({ posted_date: 'desc' })
         .limit(5)
@@ -62,13 +61,13 @@ bot.hear('subscribe', (payload, chat) => {
             if (err) {
                 log.error(err.message);
                 chat.say('Something went wrong!!')
-            } else if (result.user_id != payload.sender.id) {
+            } else if (result === null) {
                 let new_record = new User({
                     user_id: payload.sender.id
                 });
                 new_record.save()
                     .then(() => chat.say('You are subscribed now'))
-                    .catch(() => chat.say('Something went wrong'))
+                    .catch((err) => log.error(err))
             } else {
                 chat.say('you are already subscribed!!')
             }
