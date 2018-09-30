@@ -18,7 +18,7 @@ bot.setGetStartedButton((payload, chat) => {
         .exec((err, result) => {
             if (err) {
                 log.error(err.message)
-            } else if (result===null) {
+            } else if (result === null) {
                 let new_record = new User({
                     user_id: payload.sender.id
                 });
@@ -31,7 +31,7 @@ bot.setGetStartedButton((payload, chat) => {
         })
 });
 
-bot.hear(['latest jobs','new jobs','jobs'], (payload, chat) => {
+bot.hear(['latest jobs', 'new jobs', 'jobs'], (payload, chat) => {
     Job.find({})
         .sort({ posted_date: 'desc' })
         .limit(5)
@@ -73,6 +73,35 @@ bot.hear('subscribe', (payload, chat) => {
             }
         })
 });
+
+bot.hear(['unsubscribe','us'], (payload, chat) => {
+    chat.say({
+        text: 'Are you sure you want to unsubscribe ??',
+        buttons: [
+            { type: 'postback', title: 'Yes', payload: 'UNSUBSCRIBE_YES' },
+            { type: 'postback', title: 'No', payload: 'UNSUBSCRIBE_NO' }
+        ]
+    });
+})
+
+bot.on('postback:UNSUBSCRIBE_YES', (payload, chat) => {
+    console.log('button was clicked');
+    User
+        .findOneAndRemove({ user_id: payload.sender.id })
+        .exec((err, result) => {
+            if (err) {
+                log.error(err.message);
+                chat.say('You are already unsubscribed');
+            } else {
+                chat.say('You are unsubscribed succesfully!!');
+            }
+        })
+});
+
+bot.on('postback:UNSUBSCRIBE_NO', (payload, chat) => {
+    chat.say('Happy that you want to stay!!');
+});
+
 
 bot.hear(['hello', 'hey', 'sup'], (payload, chat) => {
     chat.say(`Hey , How are you today?`);

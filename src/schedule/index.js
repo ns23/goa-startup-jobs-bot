@@ -7,21 +7,21 @@ import log from '../logger';
 // fetch data everyday at 1 AM
 const rule = '0 1 * * *';
 
-//fetch data every 5 minutes
+// fetch data every 5 minutes
 // const rule = '*/5 * * * * ';
 
-const j = schedule.scheduleJob(rule, function () {
-    log.info('Scheduler started');
-    fetchData.getData()
-        .then((html) => {
-            parseData(html)
-                .then((josnData) => {
-                    addData(josnData)
-                        .then(() => notify())
-                        .catch((err) => log.error(err.message))
-                })
-        })
-        .catch((err) => log.error(err.message))
+const j = schedule.scheduleJob(rule, () => {
+  log.info('Scheduler started');
+  fetchData.getData()
+    .then((html) => {
+      parseData(html)
+        .then((josnData) => {
+          addData(josnData)
+            .then(() => notify())
+            .catch(err => log.error(err.message));
+        });
+    })
+    .catch(err => log.error(err.message));
 });
 
 export default j;
